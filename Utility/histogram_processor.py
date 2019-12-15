@@ -50,12 +50,11 @@ class HistogramShow:
         return img_adapteq
 
     def run(self, image):
-        # image = imread(_os.path.join("Hands Database/IITD Palmprint V1/Segmented/Right/001_1.bmp"), as_gray=True)
-        # image = imread(_os.path.join(path), as_gray=True)
         image_rescale = self.contrast_stretching(image)
         image_eq = self.equalization(image)
         image_adapeq = self.adaptive_equalization(image)
-        self.display_result(image, image_rescale, image_eq, image_adapeq)
+        # self.display_result(image, image_rescale, image_eq, image_adapeq)
+        return image_eq
 
     def display_result(self, image, img_rescale, img_eq, img_adapteq):
         fig = plt.figure(figsize=(8, 5))
