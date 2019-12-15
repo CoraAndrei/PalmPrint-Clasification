@@ -5,7 +5,7 @@ from Utility.image_loader import ImageLoader
 class Analyzer(HistogramShow, ImageLoader):
     SEGMENTED_RIGHT_HANDS = "Hands Database/IITD Palmprint V1/Segmented/Right/*.bmp"
     SEGMENTED_LEFT_HANDS = "Hands Database/IITD Palmprint V1/Segmented/Left/*.bmp"
-    SAVE = "Hands Database/File_{}.png"
+    SAVE = "Hands Database/Histogram_processed/File_{}.bmp"
 
     def run_now(self):
         # Load an example image

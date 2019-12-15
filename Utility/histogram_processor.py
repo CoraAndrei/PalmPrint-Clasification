@@ -53,7 +53,7 @@ class HistogramShow:
         image_rescale = self.contrast_stretching(image)
         image_eq = self.equalization(image)
         image_adapeq = self.adaptive_equalization(image)
-        # self.display_result(image, image_rescale, image_eq, image_adapeq)
+        #self.display_result(image, image_rescale, image_eq, image_adapeq)
         return image_eq
 
     def display_result(self, image, img_rescale, img_eq, img_adapteq):
