@@ -5,6 +5,8 @@ from scipy import ndimage as ndi
 from skimage import data
 from skimage.util import img_as_float
 from skimage.filters import gabor_kernel
+from skimage.io._io import imread
+import os as _os
 
 
 def compute_feats(image, kernels):
@@ -37,36 +39,32 @@ for theta in range(4):
                                           sigma_x=sigma, sigma_y=sigma))
             kernels.append(kernel)
 
+image = imread(_os.path.join("Hands Database/IITD Palmprint V1/Segmented/Right/001_1.bmp"), as_gray=True)
 
 shrink = (slice(0, None, 3), slice(0, None, 3))
-moon1 = img_as_float(data.moon())[shrink]
-moon2 = img_as_float(data.moon())[shrink]
-moon3 = img_as_float(data.moon())[shrink]
+imagine = img_as_float(image)[shrink]
 # camera = img_as_float(data.camera())[shrink]
-# clock = img_as_float(data.clock())[shrink]
-image_names = ('brick', 'grass', 'gravel')
-images = (moon1, moon2, moon3)
+image_names = ('imagine')
+images = ([imagine])
 
 # prepare reference features
 ref_feats = np.zeros((3, len(kernels), 2), dtype=np.double)
-ref_feats[0, :, :] = compute_feats(moon1, kernels)
-ref_feats[1, :, :] = compute_feats(moon2, kernels)
-ref_feats[2, :, :] = compute_feats(moon3, kernels)
+ref_feats[0, :, :] = compute_feats(imagine, kernels)
+# ref_feats[1, :, :] = compute_feats(camera, kernels)
 
 print('Rotated images matched against references using Gabor filter banks:')
 
-print('original: brick, rotated: 30deg, match result: ', 'end=')
-feats = compute_feats(ndi.rotate(moon1, angle=190, reshape=False), kernels)
+print('original: imagine, rotated: 30deg, match result: ', 'end=')
+feats = compute_feats(ndi.rotate(imagine, angle=190, reshape=False), kernels)
 print(image_names[match(feats, ref_feats)])
 
-print('original: brick, rotated: 70deg, match result: ', 'end=')
-feats = compute_feats(ndi.rotate(moon1, angle=70, reshape=False), kernels)
+print('original: imagine, rotated: 70deg, match result: ', 'end=')
+feats = compute_feats(ndi.rotate(imagine, angle=70, reshape=False), kernels)
 print(image_names[match(feats, ref_feats)])
 
-print('original: grass, rotated: 145deg, match result: ', 'end=')
-feats = compute_feats(ndi.rotate(moon1, angle=145, reshape=False), kernels)
+print('original: imagine, rotated: 145deg, match result: ','end=')
+feats = compute_feats(ndi.rotate(imagine, angle=145, reshape=False), kernels)
 print(image_names[match(feats, ref_feats)])
-
 
 def power(image, kernel):
     # Normalize images for better comparison.
