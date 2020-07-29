@@ -4,7 +4,7 @@ import numpy as np
 from skimage.io._io import imread
 import os as _os
 
-from skimage import img_as_float
+from skimage import img_as_float, filters
 from skimage import exposure
 
 matplotlib.rcParams['font.size'] = 8
@@ -49,12 +49,21 @@ class HistogramShow:
         img_adapteq = exposure.equalize_adapthist(image, clip_limit=0.03)
         return img_adapteq
 
-    def run(self, image):
+    def rescale_image(self, image):
+        v_min, v_max = np.percentile(image, (0.2, 99.8))
+        better_contrast = exposure.rescale_intensity(image, in_range=(v_min, v_max))
+        return better_contrast
+
+    def otsu_threshold(self, image):
+        val = filters.threshold_otsu(image)
+        regions = np.digitize(image, bins=val)
+
+    def histogram_run(self, image):
         image_rescale = self.contrast_stretching(image)
-        image_eq = self.equalization(image)
-        image_adapeq = self.adaptive_equalization(image)
+        #img = self.log_adjust(image_rescale)
+        image_adapeq = self.equalization(image)
         #self.display_result(image, image_rescale, image_eq, image_adapeq)
-        return image_eq
+        return image_adapeq
 
     def display_result(self, image, img_rescale, img_eq, img_adapteq):
         fig = plt.figure(figsize=(8, 5))

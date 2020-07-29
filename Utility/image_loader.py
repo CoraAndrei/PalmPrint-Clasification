@@ -1,7 +1,8 @@
 from skimage.io import imread_collection
 from skimage.io._plugins.pil_plugin import imsave
-class ImageLoader(object):
 
+
+class ImageLoader(object):
     def add_images_to_collection(self, path):
         """
         Method adds images from a certain path into a list

@@ -1,3 +1,6 @@
+import numpy
+import csv
+import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import ndimage as ndi
@@ -10,7 +13,7 @@ import os as _os
 
 class GaborExtractFeatures(object):
 
-    def compute_feats(image, kernels):
+    def compute_feats(self, image, kernels):
         feats = np.zeros((len(kernels), 2), dtype=np.double)
         for k, kernel in enumerate(kernels):
             filtered = ndi.convolve(image, kernel, mode='wrap')
@@ -18,7 +21,7 @@ class GaborExtractFeatures(object):
             feats[k, 1] = filtered.var()
         return feats
 
-    def match(feats, ref_feats):
+    def match(self, feats, ref_feats):
         min_error = np.inf
         min_i = None
         for i in range(ref_feats.shape[0]):
@@ -30,6 +33,7 @@ class GaborExtractFeatures(object):
 
     def configure_kernels(self):
         # prepare filter bank kernels
+        # 16 arrays
         kernels = []
         for theta in range(4):
             theta = theta / 4. * np.pi
@@ -38,61 +42,82 @@ class GaborExtractFeatures(object):
                     kernel = np.real(gabor_kernel(frequency, theta=theta,
                                                   sigma_x=sigma, sigma_y=sigma))
                     kernels.append(kernel)
-
         return kernels
 
     def get_image(self):
         image = imread(_os.path.join("Histogram_processed/File_0.bmp"), as_gray=True)
         shrink = (slice(0, None, 3), slice(0, None, 3))
         hand = img_as_float(image)[shrink]
-        # camera = img_as_float(data.camera())[shrink]
         image_names = ('hand')
         images = ([hand])
 
-        return image, images, image_names
+        return image, images, image_names, hand
 
-    def configure_reference_features(self):
+    def configure_reference_features(self, hand, kernels):
         # prepare reference features
         ref_feats = np.zeros((3, len(kernels), 2), dtype=np.double)
-        ref_feats[0, :, :] = compute_feats(hand, kernels)
-        ref_feats[1, :, :] = compute_feats(hand, kernels)
+        ref_feats[0, :, :] = self.compute_feats(hand, kernels)
+        ref_feats[1, :, :] = self.compute_feats(hand, kernels)
+        return ref_feats
 
-    def print_labels(self, kernels, ref_feats, picture_hand):
+    def print_labels(self, kernels, ref_feats, hand, image_names):
         print('Rotated images matched against references using Gabor filter banks:')
 
         print('original: imagine, rotated: 30deg, match result: ', 'end=')
-        feats = compute_feats(ndi.rotate(picture_hand, angle=190, reshape=False), kernels)
-        print(image_names[match(feats, ref_feats)])
+        feats = self.compute_feats(ndi.rotate(hand, angle=190, reshape=False), kernels)
+        print(image_names[self.match(feats, ref_feats)])
 
         print('original: imagine, rotated: 70deg, match result: ', 'end=')
-        feats = compute_feats(ndi.rotate(picture_hand, angle=70, reshape=False), kernels)
-        print(image_names[match(feats, ref_feats)])
+        feats = self.compute_feats(ndi.rotate(hand, angle=70, reshape=False), kernels)
+        print(image_names[self.match(feats, ref_feats)])
 
-        print('original: imagine, rotated: 145deg, match result: ','end=')
-        feats = compute_feats(ndi.rotate(picture_hand, angle=145, reshape=False), kernels)
-        print(image_names[match(feats, ref_feats)])
+        print('original: imagine, rotated: 145deg, match result: ', 'end=')
+        feats = self.compute_feats(ndi.rotate(hand, angle=145, reshape=False), kernels)
+        print(image_names[self.match(feats, ref_feats)])
 
-    def power(image, kernel):
+    def power(self, image, kernel):
         # Normalize images for better comparison.
         image = (image - image.mean()) / image.std()
         return np.sqrt(ndi.convolve(image, np.real(kernel), mode='wrap')**2 +
                        ndi.convolve(image, np.imag(kernel), mode='wrap')**2)
 
-    def plot(self, power, images, image_names):
+    def plot(self, images, image_names):
         # Plot a selection of the filter bank kernels and their responses.
         results = []
+        results2 = ""
         kernel_params = []
-        for theta in (0, 1):
+        for theta in (0, 1):  # 0 = 0 degrees, 1 = 45 degrees
             theta = theta / 4. * np.pi
-            for frequency in (0.1, 0.4):
+            for frequency in (0.1, 0.4):  # frequency 0.10 and 0.40
                 kernel = gabor_kernel(frequency, theta=theta)
                 params = 'theta=%d,\nfrequency=%.2f' % (theta * 180 / np.pi, frequency)
                 kernel_params.append(params)
                 # Save kernel and the power image for each image
-                results.append((kernel, [power(img, kernel) for img in images]))
-                print results[0][1]
+                print("NEXT")
+                print results
+                results2 += str((kernel, [self.power(img, kernel) for img in images]))
+                # se inmulteste valoarea kernel cu pixeli imagini?
+                results.append((kernel, [self.power(img, kernel) for img in images]))
+                #results2 += str(results)
 
-        fig, axes = plt.subplots(nrows=5, ncols=4, figsize=(5, 6))
+        str2 = results2.replace("\n", "")
+        str2 = str2.replace("[", "")
+        str2 = str2.replace("]", "")
+        str2 = str2.replace("(", "")
+        str2 = str2.replace(")", "")
+        str2 = str2.replace("array", "")
+        str2 = str2.replace("...,", "")
+        str2 = " ".join(str2.split())
+
+        for index in range(1, 231):
+            count = 1
+            while count < 6:
+                str2 += " Image_{}_{}".format(index, count)
+                count += 1
+        with open('Gabor_results.csv', 'w') as fp:
+            fp.write(str2)
+
+        fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(6, 7))
         plt.gray()
 
         fig.suptitle('Image responses for Gabor filter kernels', fontsize=12)
@@ -122,7 +147,11 @@ class GaborExtractFeatures(object):
 
         plt.show()
 
-    def main_function(self):
-        image, images, image_names = self.get_image()
+    def gabor_plot(self):
+        image, images, image_names, hand = self.get_image()
         kernels = self.configure_kernels()
         feats = self.compute_feats(image, kernels)
+        ref_feats = self.configure_reference_features(hand, kernels)
+
+        self.print_labels(kernels, ref_feats, hand, image_names)
+        self.plot(images, image_names)
