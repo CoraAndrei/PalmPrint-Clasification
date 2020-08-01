@@ -1,14 +1,10 @@
-import numpy
-import csv
-import pandas as pd
-import matplotlib.pyplot as plt
+import glob
+from skimage.io import imread_collection
 import numpy as np
 from scipy import ndimage as ndi
 
 from skimage.util import img_as_float
 from skimage.filters import gabor_kernel
-from skimage.io._io import imread
-import os as _os
 
 
 class GaborExtractFeatures(object):
@@ -35,23 +31,31 @@ class GaborExtractFeatures(object):
         # prepare filter bank kernels
         # 16 arrays
         kernels = []
-        for theta in range(4):
-            theta = theta / 4. * np.pi
-            for sigma in (1, 3):
-                for frequency in (0.05, 0.25):
-                    kernel = np.real(gabor_kernel(frequency, theta=theta,
-                                                  sigma_x=sigma, sigma_y=sigma))
-                    kernels.append(kernel)
+
+        theta = 2
+        sigma = 1
+        frequency = 0.05
+        kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
+        kernels.append(kernel.astype(float))
+        # kernels = []
+        # for theta in range(4):
+        #     theta = theta / 4. * np.pi
+        #     for sigma in (1, 3):
+        #         for frequency in (0.05, 0.25):
+        #             kernel = np.real(gabor_kernel(frequency, theta=theta,
+        #                                           sigma_x=sigma, sigma_y=sigma))
+        #             print ("kernelLLL: {}".format(kernel))
+        #             kernels.append(kernel.astype(float))
         return kernels
 
-    def get_image(self):
-        image = imread(_os.path.join("Histogram_processed/File_0.bmp"), as_gray=True)
+    def get_image(self, processed_image):
+        #image = imread(_os.path.join("Histogram_processed/File_0.bmp"), as_gray=True)
         shrink = (slice(0, None, 3), slice(0, None, 3))
-        hand = img_as_float(image)[shrink]
+        hand = img_as_float(processed_image)[shrink]
         image_names = ('hand')
         images = ([hand])
 
-        return image, images, image_names, hand
+        return processed_image, images, image_names, hand
 
     def configure_reference_features(self, hand, kernels):
         # prepare reference features
@@ -81,24 +85,28 @@ class GaborExtractFeatures(object):
         return np.sqrt(ndi.convolve(image, np.real(kernel), mode='wrap')**2 +
                        ndi.convolve(image, np.imag(kernel), mode='wrap')**2)
 
-    def plot(self, images, image_names):
+    def plot(self, images, image_names, class_name):
         # Plot a selection of the filter bank kernels and their responses.
-        results = []
         results2 = ""
         kernel_params = []
         for theta in (0, 1):  # 0 = 0 degrees, 1 = 45 degrees
             theta = theta / 4. * np.pi
             for frequency in (0.1, 0.4):  # frequency 0.10 and 0.40
-                kernel = gabor_kernel(frequency, theta=theta)
-                params = 'theta=%d,\nfrequency=%.2f' % (theta * 180 / np.pi, frequency)
-                kernel_params.append(params)
+                theta = 2
+                sigma = 1
+                frequency = 0.05
+                kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
+                #kernel = np.real(gabor_kernel(frequency, theta=theta))
+                #params = 'theta=%d,\nfrequency=%.2f' % (theta * 180 / np.pi, frequency)
+                #kernel_params.append(params)
                 # Save kernel and the power image for each image
-                print("NEXT")
-                print results
-                results2 += str((kernel, [self.power(img, kernel) for img in images]))
+                # results2 += str((kernel, [self.power(img, kernel) for img in images]))
+                print ("tttt: {}".format(kernel))
+                print('ssssss : {}'.format([self.power(img, kernel) for img in images]))
+                results2 += str([self.power(img, kernel) for img in images])
+
                 # se inmulteste valoarea kernel cu pixeli imagini?
-                results.append((kernel, [self.power(img, kernel) for img in images]))
-                #results2 += str(results)
+                # results.append((kernel, [self.power(img, kernel) for img in images]))
 
         str2 = results2.replace("\n", "")
         str2 = str2.replace("[", "")
@@ -109,49 +117,51 @@ class GaborExtractFeatures(object):
         str2 = str2.replace("...,", "")
         str2 = " ".join(str2.split())
 
-        for index in range(1, 231):
-            count = 1
-            while count < 6:
-                str2 += " Image_{}_{}".format(index, count)
-                count += 1
-        with open('Gabor_results.csv', 'w') as fp:
+        str2 += " Image:{}".format(str(class_name))
+
+        with open('Gabor_results.csv', 'a') as fp:
             fp.write(str2)
+            fp.write('\n')
 
-        fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(6, 7))
-        plt.gray()
+        # fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(6, 7))
+        # plt.gray()
+        #
+        # fig.suptitle('Image responses for Gabor filter kernels', fontsize=12)
+        #
+        # axes[0][0].axis('off')
+        #
+        # # Plot original images
+        # for label, img, ax in zip(image_names, images, axes[0][1:]):
+        #     ax.imshow(img)
+        #     ax.set_title(label, fontsize=9)
+        #     ax.axis('off')
+        #
+        # for label, (kernel, powers), ax_row in zip(kernel_params, results2, axes[1:]):
+        #     # Plot Gabor kernel
+        #     ax = ax_row[0]
+        #     ax.imshow(np.real(kernel))
+        #     ax.set_ylabel(label, fontsize=7)
+        #     ax.set_xticks([])
+        #     ax.set_yticks([])
+        #
+        #     # Plot Gabor responses with the contrast normalized for each filter
+        #     vmin = np.min(powers)
+        #     vmax = np.max(powers)
+        #     for patch, ax in zip(powers, ax_row[1:]):
+        #         ax.imshow(patch, vmin=vmin, vmax=vmax)
+        #         ax.axis('off')
 
-        fig.suptitle('Image responses for Gabor filter kernels', fontsize=12)
+        #plt.show()
 
-        axes[0][0].axis('off')
+    def gabor_plot(self, processed_images_path):
+        base = glob.glob(processed_images_path)
+        all_images = imread_collection(processed_images_path)
+        for index, image in enumerate(all_images):
+            class_name = base[index].split('\\')[-1].replace(".bmp", "")
+            image, images, image_names, hand = self.get_image(image)
+            kernels = self.configure_kernels()
+            feats = self.compute_feats(image, kernels)
+            ref_feats = self.configure_reference_features(hand, kernels)
 
-        # Plot original images
-        for label, img, ax in zip(image_names, images, axes[0][1:]):
-            ax.imshow(img)
-            ax.set_title(label, fontsize=9)
-            ax.axis('off')
-
-        for label, (kernel, powers), ax_row in zip(kernel_params, results, axes[1:]):
-            # Plot Gabor kernel
-            ax = ax_row[0]
-            ax.imshow(np.real(kernel))
-            ax.set_ylabel(label, fontsize=7)
-            ax.set_xticks([])
-            ax.set_yticks([])
-
-            # Plot Gabor responses with the contrast normalized for each filter
-            vmin = np.min(powers)
-            vmax = np.max(powers)
-            for patch, ax in zip(powers, ax_row[1:]):
-                ax.imshow(patch, vmin=vmin, vmax=vmax)
-                ax.axis('off')
-
-        plt.show()
-
-    def gabor_plot(self):
-        image, images, image_names, hand = self.get_image()
-        kernels = self.configure_kernels()
-        feats = self.compute_feats(image, kernels)
-        ref_feats = self.configure_reference_features(hand, kernels)
-
-        self.print_labels(kernels, ref_feats, hand, image_names)
-        self.plot(images, image_names)
+            self.print_labels(kernels, ref_feats, hand, image_names)
+            self.plot(images, image_names, class_name=class_name)
