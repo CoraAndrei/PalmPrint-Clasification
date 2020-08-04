@@ -1,9 +1,13 @@
+import cv2
 import glob
 from skimage.io import imread_collection
 import numpy as np
 from scipy import ndimage as ndi
 
-from skimage.util import img_as_float
+from sklearn import random_projection
+
+
+from skimage.util import img_as_float, img_as_float64, img_as_uint
 from skimage.filters import gabor_kernel
 
 
@@ -49,10 +53,13 @@ class GaborExtractFeatures(object):
         return kernels
 
     def get_image(self, processed_image):
-        #image = imread(_os.path.join("Histogram_processed/File_0.bmp"), as_gray=True)
-        shrink = (slice(0, None, 3), slice(0, None, 3))
+        # image = imread(_os.path.join("Histogram_processed/File_0.bmp"), as_gray=True)
+        #img = cv2.imread(processed_image)
+        shrink = (slice(0, None, 4), slice(0, None, 4))
         hand = img_as_float(processed_image)[shrink]
-        image_names = ('hand')
+        #hand = hand.reshape(-1)
+#       hand = img_as_float(processed_image)[shrink]
+        image_names = 'hand'
         images = ([hand])
 
         return processed_image, images, image_names, hand
@@ -85,42 +92,67 @@ class GaborExtractFeatures(object):
         return np.sqrt(ndi.convolve(image, np.real(kernel), mode='wrap')**2 +
                        ndi.convolve(image, np.imag(kernel), mode='wrap')**2)
 
-    def plot(self, images, image_names, class_name):
+    def plot(self, images, image_names, class_name, index):
         # Plot a selection of the filter bank kernels and their responses.
-        results2 = ""
-        kernel_params = []
-        for theta in (0, 1):  # 0 = 0 degrees, 1 = 45 degrees
-            theta = theta / 4. * np.pi
-            for frequency in (0.1, 0.4):  # frequency 0.10 and 0.40
-                theta = 2
-                sigma = 1
-                frequency = 0.05
-                kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
-                #kernel = np.real(gabor_kernel(frequency, theta=theta))
-                #params = 'theta=%d,\nfrequency=%.2f' % (theta * 180 / np.pi, frequency)
-                #kernel_params.append(params)
-                # Save kernel and the power image for each image
-                # results2 += str((kernel, [self.power(img, kernel) for img in images]))
-                print ("tttt: {}".format(kernel))
-                print('ssssss : {}'.format([self.power(img, kernel) for img in images]))
-                results2 += str([self.power(img, kernel) for img in images])
+        results2 = []
+        # for theta in (0, 1):  # 0 = 0 degrees, 1 = 45 degrees
+        #     theta = theta / 4. * np.pi
+        #     for frequency in (0.1, 0.4):  # frequency 0.10 and 0.40
+        #         #theta = 2
+        #         sigma = 1
+        #         #frequency = 0.05
+        #         kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
+        #
+        #         # Save kernel and the power image for each image
+        #         results2.append([self.power(img, kernel) for img in images])
 
+        theta = 1
+        frequency = 0.4
+        sigma = 1
+        ksize = 3
+        gamma = 0.5
+        lamda = 1
+        kernel = cv2.getGaborKernel((ksize, ksize), sigma, theta, lamda, gamma, 0, ktype=cv2.CV_64F)
+
+        # kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
+        results2.append([self.power(img, kernel) for img in images])
+
+        print ('results2 : {}'.format(results2))
                 # se inmulteste valoarea kernel cu pixeli imagini?
-                # results.append((kernel, [self.power(img, kernel) for img in images]))
 
-        str2 = results2.replace("\n", "")
-        str2 = str2.replace("[", "")
-        str2 = str2.replace("]", "")
-        str2 = str2.replace("(", "")
-        str2 = str2.replace(")", "")
-        str2 = str2.replace("array", "")
-        str2 = str2.replace("...,", "")
-        str2 = " ".join(str2.split())
+        #print ('Damira: {}'.format(results2[0][0][0]))
+        #print ('Damira: {} '.format('%.8f' %  (results2[0][0][0][0])))
 
-        str2 += " Image:{}".format(str(class_name))
+        # kernels = []
+        # for theta in range(2):
+        #     theta = theta / 4. * np.pi
+        #     for sigma in (3, 5):
+        #         for lamda in np.arange(0, np.pi, np.pi / 4.):
+        #             for gamma in (0.05, 0.5):
+        #                 ksize = 9
+        #                 kernel = cv2.getGaborKernel((ksize, ksize), sigma, theta, lamda, gamma, 0, ktype=cv2.CV_64F)
+        #                 kernels.append(kernel)
+        #                 results2 += str([cv2.filter2D(img, cv2.CV_8UC3, kernel) for img in images])
 
+        print("xx: {}".format(results2))
+        aaa = ""
+        for i in results2:
+            for a in i:
+                for b in a:
+                    for c in b:
+                        aaa += str(c) + ','
+
+        features_length = len(aaa.split(','))
+        aaa += "img{}".format(str(class_name))
+
+        if index == 0:
+            with open('Gabor_results.csv', 'w') as fp:
+                for column in range(features_length-1):
+                    fp.write("attr_{},".format(column))
+                fp.write("class_name")
+                fp.write('\n')
         with open('Gabor_results.csv', 'a') as fp:
-            fp.write(str2)
+            fp.write(aaa)
             fp.write('\n')
 
         # fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(6, 7))
@@ -157,11 +189,11 @@ class GaborExtractFeatures(object):
         base = glob.glob(processed_images_path)
         all_images = imread_collection(processed_images_path)
         for index, image in enumerate(all_images):
-            class_name = base[index].split('\\')[-1].replace(".bmp", "")
+            class_name = base[index].split('\\')[-1].replace(".bmp", "")[0:3]
             image, images, image_names, hand = self.get_image(image)
-            kernels = self.configure_kernels()
-            feats = self.compute_feats(image, kernels)
-            ref_feats = self.configure_reference_features(hand, kernels)
+            #kernels = self.configure_kernels()
+            #feats = self.compute_feats(image, kernels)
+            #ref_feats = self.configure_reference_features(hand, kernels)
 
-            self.print_labels(kernels, ref_feats, hand, image_names)
-            self.plot(images, image_names, class_name=class_name)
+            #self.print_labels(kernels, ref_feats, hand, image_names)
+            self.plot(images, image_names, class_name=class_name, index=index)

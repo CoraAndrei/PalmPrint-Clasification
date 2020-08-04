@@ -16,6 +16,10 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
         # Load images
         imgs = self.add_images_to_collection(self.SEGMENTED_RIGHT_HANDS)
         base = glob.glob("Hands Database\IITD Palmprint V1\Segmented\Right\*.bmp")
+
+        with open('Gabor_results.csv', 'w') as fp:
+            fp.truncate()
+
         counter = []
         for index, image in enumerate(imgs):
             img_to_be_saved = self.histogram_run(image)
