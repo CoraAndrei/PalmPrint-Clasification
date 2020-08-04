@@ -106,16 +106,16 @@ class GaborExtractFeatures(object):
         #         # Save kernel and the power image for each image
         #         results2.append([self.power(img, kernel) for img in images])
 
-        theta = 1
-        frequency = 0.4
-        sigma = 1
-        ksize = 3
-        gamma = 0.5
-        lamda = 1
-        kernel = cv2.getGaborKernel((ksize, ksize), sigma, theta, lamda, gamma, 0, ktype=cv2.CV_64F)
+        for theta in (1.4, 2.1):
+            for ksize in (11, 15):
+                sigma = 1
+                # ksize = 15
+                gamma = 0.5
+                lamda = 0.9
+                kernel = cv2.getGaborKernel((ksize, ksize), sigma, theta, lamda, gamma, 0, ktype=cv2.CV_64F)
 
-        # kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
-        results2.append([self.power(img, kernel) for img in images])
+            #kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
+                results2.append([self.power(img, kernel) for img in images])
 
         print ('results2 : {}'.format(results2))
                 # se inmulteste valoarea kernel cu pixeli imagini?
