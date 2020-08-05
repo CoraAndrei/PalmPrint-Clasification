@@ -1,5 +1,7 @@
 import cv2
 import glob
+
+import numpy
 from skimage.io import imread_collection
 import numpy as np
 from scipy import ndimage as ndi
@@ -55,7 +57,7 @@ class GaborExtractFeatures(object):
     def get_image(self, processed_image):
         # image = imread(_os.path.join("Histogram_processed/File_0.bmp"), as_gray=True)
         #img = cv2.imread(processed_image)
-        shrink = (slice(0, None, 4), slice(0, None, 4))
+        shrink = (slice(0, None, 3), slice(0, None, 3))
         hand = img_as_float(processed_image)[shrink]
         #hand = hand.reshape(-1)
 #       hand = img_as_float(processed_image)[shrink]
@@ -117,7 +119,11 @@ class GaborExtractFeatures(object):
             #kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
                 results2.append([self.power(img, kernel) for img in images])
 
-        print ('results2 : {}'.format(results2))
+        # np_array = np.array(results2[0][0])
+        # array_mean = np_array.mean(axis=1)
+        # print ('np_array : {}'.format(np_array))
+        # print ('np_array_mean : {}'.format(array_mean))
+        # print ('results2 : {}'.format(results2[0][0]))
                 # se inmulteste valoarea kernel cu pixeli imagini?
 
         #print ('Damira: {}'.format(results2[0][0][0]))
@@ -134,13 +140,29 @@ class GaborExtractFeatures(object):
         #                 kernels.append(kernel)
         #                 results2 += str([cv2.filter2D(img, cv2.CV_8UC3, kernel) for img in images])
 
+        # np_array = np.array(results2[0][0])
+        # array_mean = np_array.mean(axis=1)
+        # print ('np_array : {}'.format(np_array))
+        # print ('np_array_mean : {}'.format(array_mean))
+        # print ('results2 : {}'.format(results2[0][0]))
+
         print("xx: {}".format(results2))
         aaa = ""
         for i in results2:
             for a in i:
-                for b in a:
-                    for c in b:
-                        aaa += str(c) + ','
+                # for b in a:
+                np_array = np.array(a)
+                numX = np_array.shape[1]
+                covX = numpy.zeros((1))
+                meanX = covX.mean()
+
+                # mean = np_array.mean(axis=1)
+                for k in range(0, numX):
+                    covX = covX + (np_array[:, k] - meanX) * (np_array[:, k] - meanX)
+                covX = covX / (numX - 1)
+
+                for c in covX:
+                    aaa += str(c) + ','
 
         features_length = len(aaa.split(','))
         aaa += "img{}".format(str(class_name))
