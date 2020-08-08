@@ -94,7 +94,7 @@ class GaborExtractFeatures(object):
         return np.sqrt(ndi.convolve(image, np.real(kernel), mode='wrap')**2 +
                        ndi.convolve(image, np.imag(kernel), mode='wrap')**2)
 
-    def plot(self, images, image_names, class_name, index):
+    def plot(self, images, image_names, class_name, index, second=False):
         # Plot a selection of the filter bank kernels and their responses.
         results2 = []
         # for theta in (0, 1):  # 0 = 0 degrees, 1 = 45 degrees
@@ -146,7 +146,6 @@ class GaborExtractFeatures(object):
         # print ('np_array_mean : {}'.format(array_mean))
         # print ('results2 : {}'.format(results2[0][0]))
 
-        print("xx: {}".format(results2))
         aaa = ""
         for i in results2:
             for a in i:
@@ -165,17 +164,19 @@ class GaborExtractFeatures(object):
                     aaa += str(c) + ','
 
         features_length = len(aaa.split(','))
-        aaa += "img{}".format(str(class_name))
+        if second:
+            aaa += "img{}".format(str(class_name))
 
         if index == 0:
             with open('Gabor_results.csv', 'w') as fp:
-                for column in range(features_length-1):
+                for column in range(features_length*2-2):
                     fp.write("attr_{},".format(column))
                 fp.write("class_name")
                 fp.write('\n')
         with open('Gabor_results.csv', 'a') as fp:
             fp.write(aaa)
-            fp.write('\n')
+            if second:
+                fp.write('\n')
 
         # fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(6, 7))
         # plt.gray()
@@ -212,10 +213,12 @@ class GaborExtractFeatures(object):
         all_images = imread_collection(processed_images_path)
         for index, image in enumerate(all_images):
             class_name = base[index].split('\\')[-1].replace(".bmp", "")[0:3]
+            class_double = base[index].split('\\')[-1].replace(".bmp", "")[3:6]
+            self.second = True if 'a' in class_double else False
             image, images, image_names, hand = self.get_image(image)
             #kernels = self.configure_kernels()
             #feats = self.compute_feats(image, kernels)
             #ref_feats = self.configure_reference_features(hand, kernels)
 
             #self.print_labels(kernels, ref_feats, hand, image_names)
-            self.plot(images, image_names, class_name=class_name, index=index)
+            self.plot(images, image_names, class_name=class_name, index=index, second=self.second)

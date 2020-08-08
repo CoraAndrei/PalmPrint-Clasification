@@ -27,6 +27,17 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
             counter.append(base[index].rsplit('\\', 1)[-1])
             self.save_image(img_to_be_saved, self.SAVE_LOCATION.format(counter[index]))
 
+        imgs = self.add_images_to_collection(self.SEGMENTED_LEFT_HANDS)
+        base = glob.glob("Hands Database\IITD Palmprint V1\Segmented\Left\*.bmp")
+
+        counter = []
+        for index, image in enumerate(imgs):
+            img_to_be_saved = self.histogram_run(image)
+            base[index] = base[index].replace(".bmp", "")
+
+            counter.append(base[index].rsplit('\\', 1)[-1])
+            self.save_image(img_to_be_saved, self.SAVE_LOCATION.format(counter[index]+"a"))
+
         self.gabor_plot(processed_images_path=self.PROCESSED_IMAGES_PATH)
 
 
