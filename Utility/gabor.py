@@ -6,8 +6,6 @@ from skimage.io import imread_collection
 import numpy as np
 from scipy import ndimage as ndi
 
-from sklearn import random_projection
-
 
 from skimage.util import img_as_float, img_as_float64, img_as_uint
 from skimage.filters import gabor_kernel
@@ -94,7 +92,7 @@ class GaborExtractFeatures(object):
         return np.sqrt(ndi.convolve(image, np.real(kernel), mode='wrap')**2 +
                        ndi.convolve(image, np.imag(kernel), mode='wrap')**2)
 
-    def plot(self, images, image_names, class_name, index, second=False):
+    def plot(self, images, image_names, class_name, index, second=False, both=False):
         # Plot a selection of the filter bank kernels and their responses.
         results2 = []
         # for theta in (0, 1):  # 0 = 0 degrees, 1 = 45 degrees
@@ -108,26 +106,14 @@ class GaborExtractFeatures(object):
         #         # Save kernel and the power image for each image
         #         results2.append([self.power(img, kernel) for img in images])
 
-        for theta in (1.4, 2.1):
+        for theta in (1.4, 2.1, 3, 4):
             for ksize in (11, 15):
                 sigma = 1
-                # ksize = 15
+                # ksize = 11
                 gamma = 0.5
                 lamda = 0.9
                 kernel = cv2.getGaborKernel((ksize, ksize), sigma, theta, lamda, gamma, 0, ktype=cv2.CV_64F)
-
-            #kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
                 results2.append([self.power(img, kernel) for img in images])
-
-        # np_array = np.array(results2[0][0])
-        # array_mean = np_array.mean(axis=1)
-        # print ('np_array : {}'.format(np_array))
-        # print ('np_array_mean : {}'.format(array_mean))
-        # print ('results2 : {}'.format(results2[0][0]))
-                # se inmulteste valoarea kernel cu pixeli imagini?
-
-        #print ('Damira: {}'.format(results2[0][0][0]))
-        #print ('Damira: {} '.format('%.8f' %  (results2[0][0][0][0])))
 
         # kernels = []
         # for theta in range(2):
@@ -140,11 +126,6 @@ class GaborExtractFeatures(object):
         #                 kernels.append(kernel)
         #                 results2 += str([cv2.filter2D(img, cv2.CV_8UC3, kernel) for img in images])
 
-        # np_array = np.array(results2[0][0])
-        # array_mean = np_array.mean(axis=1)
-        # print ('np_array : {}'.format(np_array))
-        # print ('np_array_mean : {}'.format(array_mean))
-        # print ('results2 : {}'.format(results2[0][0]))
 
         aaa = ""
         for i in results2:
@@ -164,18 +145,26 @@ class GaborExtractFeatures(object):
                     aaa += str(c) + ','
 
         features_length = len(aaa.split(','))
-        if second:
+        if second and both:
+            aaa += "img{}".format(str(class_name))
+        elif both is False:
             aaa += "img{}".format(str(class_name))
 
         if index == 0:
             with open('Gabor_results.csv', 'w') as fp:
-                for column in range(features_length*2-2):
-                    fp.write("attr_{},".format(column))
+                if both:
+                    for column in range(features_length*2-2):
+                        fp.write("attr_{},".format(column))
+                else:
+                    for column in range(features_length-1):
+                        fp.write("attr_{},".format(column))
                 fp.write("class_name")
                 fp.write('\n')
         with open('Gabor_results.csv', 'a') as fp:
             fp.write(aaa)
-            if second:
+            if second and both:
+                fp.write('\n')
+            elif both is False:
                 fp.write('\n')
 
         # fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(6, 7))
