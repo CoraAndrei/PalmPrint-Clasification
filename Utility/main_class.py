@@ -4,7 +4,6 @@ import sys
 import argparse
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-
 from Utility.histogram_processor import HistogramShow
 from Utility.image_loader import ImageLoader
 from Utility.gabor import GaborExtractFeatures
@@ -16,7 +15,7 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
     SAVE_LOCATION = "Histogram_processed/{}.bmp"
     PROCESSED_IMAGES_PATH = "Histogram_processed/*.bmp"
 
-    def gabor_filter(self, both_hands=True, left_hand=False, right_hand=False):
+    def gabor_filter(self, both_hands, left_hand, right_hand):
         """
         Method that is starting the image enhancement and applies gabor filter
         :param both_hands: <bool> if True, both left and right hand images will be processed
@@ -48,7 +47,7 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
         with open('Gabor_test.csv', 'w') as fp:
             fp.truncate()
 
-        if both_hands:
+        if both_hands is True:
             imgs = right_imgs
             base = right_imgs_base_path
             hands_counter = 2
@@ -65,7 +64,7 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
                 hands_counter -= 1
                 imgs = left_imgs
                 base = left_imgs_base_path
-        elif left_hand or right_hand:
+        elif left_hand is True or right_hand is True:
             counter = []
             for index, image in enumerate(self.imgs):
                 img_to_be_saved = self.histogram_run(image)
@@ -77,15 +76,17 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
         self.gabor_plot(processed_images_path=self.PROCESSED_IMAGES_PATH, both=both_hands)
 
     def main(self, args):
+        """ Setting arguments for gabor method """
         parser = argparse.ArgumentParser(description="Type all parameters")
-        parser.add_argument("both_hands", help="both_hands", type=str, default=True)
-        parser.add_argument("--left_hand", help="left_hand", type=str, default=False, required=False)
-        parser.add_argument("--right_hand", help="right_hand", type=str, default=False, required=False)
+        parser.add_argument("both_hands", help="both_hands", type=bool, default=False)
+        parser.add_argument("--left_hand", help="left_hand", type=bool, default=False, required=False)
+        parser.add_argument("--right_hand", help="right_hand", type=bool, default=False, required=False)
 
         args = parser.parse_args(args)
         self.gabor_filter(args.both_hands, args.left_hand, args.right_hand)
 
 
 if __name__ == "__main__":
-    Analyzer().main(sys.argv[1:])
+    # Analyzer().main(sys.argv[1:])
+    Analyzer().gabor_filter(both_hands=True, right_hand=False, left_hand=False)
     print ("All images were processed!")
