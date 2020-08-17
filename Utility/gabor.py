@@ -163,24 +163,37 @@ class GaborExtractFeatures(object):
                         fp.write("attr_{},".format(column))
                 fp.write("class_name")
                 fp.write('\n')
+        if both:
+            if general_index in [1, 2, 3, 4, 5, 6, 7, 8]:
+                with open('Gabor_learn.csv', 'a') as fp:
+                    fp.write(aaa)
+                    if second and both:
+                        fp.write('\n')
+                    elif both is False:
+                        fp.write('\n')
+            elif general_index in [9, 10]:
+                with open('Gabor_test.csv', 'a') as fp:
+                    fp.write(aaa)
+                    if second and both:
+                        fp.write('\n')
+                    elif both is False:
+                        fp.write('\n')
+        else:
+            if general_index in [1, 2, 3, 4]:
+                with open('Gabor_learn.csv', 'a') as fp:
+                    fp.write(aaa)
+                    if second and both:
+                        fp.write('\n')
+                    elif both is False:
+                        fp.write('\n')
 
-
-        print ("sss: {}".format(general_index))
-        if general_index in [1, 2, 3, 4, 5, 6, 7, 8]:
-            with open('Gabor_learn.csv', 'a') as fp:
-                fp.write(aaa)
-                if second and both:
-                    fp.write('\n')
-                elif both is False:
-                    fp.write('\n')
-
-        elif general_index in [9, 10]:
-            with open('Gabor_test.csv', 'a') as fp:
-                fp.write(aaa)
-                if second and both:
-                    fp.write('\n')
-                elif both is False:
-                    fp.write('\n')
+            elif general_index in [5]:
+                with open('Gabor_test.csv', 'a') as fp:
+                    fp.write(aaa)
+                    if second and both:
+                        fp.write('\n')
+                    elif both is False:
+                        fp.write('\n')
 
         # fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(6, 7))
         # plt.gray()
