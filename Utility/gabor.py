@@ -95,16 +95,6 @@ class GaborExtractFeatures(object):
     def plot(self, images, image_names, class_name, index, second=False, both=False):
         # Plot a selection of the filter bank kernels and their responses.
         results2 = []
-        # for theta in (0, 1):  # 0 = 0 degrees, 1 = 45 degrees
-        #     theta = theta / 4. * np.pi
-        #     for frequency in (0.1, 0.4):  # frequency 0.10 and 0.40
-        #         #theta = 2
-        #         sigma = 1
-        #         #frequency = 0.05
-        #         kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
-        #
-        #         # Save kernel and the power image for each image
-        #         results2.append([self.power(img, kernel) for img in images])
 
         for theta in (1.4, 2.1, 3, 4):
             for ksize in (11, 15):
@@ -197,7 +187,7 @@ class GaborExtractFeatures(object):
 
         #plt.show()
 
-    def gabor_plot(self, processed_images_path):
+    def gabor_plot(self, processed_images_path, both=False):
         base = glob.glob(processed_images_path)
         all_images = imread_collection(processed_images_path)
         for index, image in enumerate(all_images):
@@ -210,4 +200,4 @@ class GaborExtractFeatures(object):
             #ref_feats = self.configure_reference_features(hand, kernels)
 
             #self.print_labels(kernels, ref_feats, hand, image_names)
-            self.plot(images, image_names, class_name=class_name, index=index, second=self.second)
+            self.plot(images, image_names, class_name=class_name, index=index, second=self.second, both=both)
