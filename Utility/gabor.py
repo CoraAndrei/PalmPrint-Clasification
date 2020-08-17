@@ -92,7 +92,7 @@ class GaborExtractFeatures(object):
         return np.sqrt(ndi.convolve(image, np.real(kernel), mode='wrap')**2 +
                        ndi.convolve(image, np.imag(kernel), mode='wrap')**2)
 
-    def plot(self, images, image_names, class_name, index, second=False, both=False):
+    def plot(self, images, image_names, class_name, index, general_index, second=False, both=False):
         # Plot a selection of the filter bank kernels and their responses.
         results2 = []
 
@@ -140,8 +140,9 @@ class GaborExtractFeatures(object):
         elif both is False:
             aaa += "img{}".format(str(class_name))
 
+        # Gabor Learn csv
         if index == 0:
-            with open('Gabor_results.csv', 'w') as fp:
+            with open('Gabor_learn.csv', 'w') as fp:
                 if both:
                     for column in range(features_length*2-2):
                         fp.write("attr_{},".format(column))
@@ -150,12 +151,36 @@ class GaborExtractFeatures(object):
                         fp.write("attr_{},".format(column))
                 fp.write("class_name")
                 fp.write('\n')
-        with open('Gabor_results.csv', 'a') as fp:
-            fp.write(aaa)
-            if second and both:
+
+        # Gabor Train csv
+        if index == 0:
+            with open('Gabor_test.csv', 'w') as fp:
+                if both:
+                    for column in range(features_length * 2 - 2):
+                        fp.write("attr_{},".format(column))
+                else:
+                    for column in range(features_length - 1):
+                        fp.write("attr_{},".format(column))
+                fp.write("class_name")
                 fp.write('\n')
-            elif both is False:
-                fp.write('\n')
+
+
+        print ("sss: {}".format(general_index))
+        if general_index in [1, 2, 3, 4, 5, 6, 7, 8]:
+            with open('Gabor_learn.csv', 'a') as fp:
+                fp.write(aaa)
+                if second and both:
+                    fp.write('\n')
+                elif both is False:
+                    fp.write('\n')
+
+        elif general_index in [9, 10]:
+            with open('Gabor_test.csv', 'a') as fp:
+                fp.write(aaa)
+                if second and both:
+                    fp.write('\n')
+                elif both is False:
+                    fp.write('\n')
 
         # fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(6, 7))
         # plt.gray()
@@ -190,7 +215,9 @@ class GaborExtractFeatures(object):
     def gabor_plot(self, processed_images_path, both=False):
         base = glob.glob(processed_images_path)
         all_images = imread_collection(processed_images_path)
+        count = 0
         for index, image in enumerate(all_images):
+
             class_name = base[index].split('\\')[-1].replace(".bmp", "")[0:3]
             class_double = base[index].split('\\')[-1].replace(".bmp", "")[3:6]
             self.second = True if 'a' in class_double else False
@@ -200,4 +227,12 @@ class GaborExtractFeatures(object):
             #ref_feats = self.configure_reference_features(hand, kernels)
 
             #self.print_labels(kernels, ref_feats, hand, image_names)
-            self.plot(images, image_names, class_name=class_name, index=index, second=self.second, both=both)
+            count += 1
+            self.plot(images, image_names, class_name=class_name, index=index, general_index=count,
+                      second=self.second, both=both)
+            if both:
+                if count == 10:
+                    count = 0
+            elif both is False:
+                if count == 5:
+                    count = 0
