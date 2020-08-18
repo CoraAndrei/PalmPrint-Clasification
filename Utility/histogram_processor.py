@@ -65,7 +65,7 @@ class HistogramShow:
         #self.display_result(image, image_rescale, image_eq, image_adapeq)
         return image_adapeq
 
-    def display_result(self, image, img_rescale, img_eq, img_adapteq):
+    def display_result(self, image_before, image_after):
         fig = plt.figure(figsize=(8, 5))
         axes = np.zeros((2, 4), dtype=np.object)
         axes[0, 0] = fig.add_subplot(2, 4, 1)
@@ -74,21 +74,16 @@ class HistogramShow:
         for i in range(0, 4):
             axes[1, i] = fig.add_subplot(2, 4, 5 + i)
 
-        ax_img, ax_hist, ax_cdf = self.plot_img_and_hist(image, axes[:, 0])
-        ax_img.set_title('Low contrast image')
+        ax_img, ax_hist, ax_cdf = self.plot_img_and_hist(image_before, axes[:, 0])
+        ax_img.set_title('Before histogram')
 
         y_min, y_max = ax_hist.get_ylim()
         ax_hist.set_ylabel('Number of pixels')
         ax_hist.set_yticks(np.linspace(0, y_max, 5))
 
-        ax_img, ax_hist, ax_cdf = self.plot_img_and_hist(img_rescale, axes[:, 1])
-        ax_img.set_title('Contrast stretching')
-
-        ax_img, ax_hist, ax_cdf = self.plot_img_and_hist(img_eq, axes[:, 2])
+        ax_img, ax_hist, ax_cdf = self.plot_img_and_hist(image_after, axes[:, 2])
         ax_img.set_title('Histogram equalization')
 
-        ax_img, ax_hist, ax_cdf = self.plot_img_and_hist(img_adapteq, axes[:, 3])
-        ax_img.set_title('Adaptive equalization')
 
         ax_cdf.set_ylabel('Fraction of total intensity')
         ax_cdf.set_yticks(np.linspace(0, 1, 5))

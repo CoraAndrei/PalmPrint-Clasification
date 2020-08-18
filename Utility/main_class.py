@@ -15,13 +15,13 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
     SAVE_LOCATION = "Histogram_processed/{}.bmp"
     PROCESSED_IMAGES_PATH = "Histogram_processed/*.bmp"
 
-    def gabor_filter(self, both_hands, left_hand, right_hand):
+    def gabor_filter(self, both_hands, left_hand, right_hand, train_test_ratio):
         """
         Method that is starting the image enhancement and applies gabor filter
         :param both_hands: <bool> if True, both left and right hand images will be processed
         :param left_hand: <bool> if True, only left images will be processed
         :param right_hand: <bool> if True, only right hand images will be processed
-        :return:
+        :param train_test_ratio: <str> ration between train images and test images e.g.: 3/2 is 3 train images, 2 test
         """
         print ("Deleting old processed images!")
         processed_images = glob.glob(self.PROCESSED_IMAGES_PATH)
@@ -42,7 +42,7 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
             self.base = left_imgs_base_path
 
         print ("Deleting old data from csv files!")
-        with open('Gabor_learn.csv', 'w') as fp:
+        with open('Gabor_train.csv', 'w') as fp:
             fp.truncate()
         with open('Gabor_test.csv', 'w') as fp:
             fp.truncate()
@@ -68,25 +68,28 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
             counter = []
             for index, image in enumerate(self.imgs):
                 img_to_be_saved = self.histogram_run(image)
+                self.display_result(image, img_to_be_saved)
                 self.base[index] = self.base[index].replace(".bmp", "")
                 counter.append(self.base[index].rsplit('\\', 1)[-1])
                 self.save_image(img_to_be_saved, self.SAVE_LOCATION.format(counter[index]))
 
         print ("Applying gabor filter on processed images!")
-        self.gabor_plot(processed_images_path=self.PROCESSED_IMAGES_PATH, both=both_hands)
+        self.gabor_plot(processed_images_path=self.PROCESSED_IMAGES_PATH, train_test_ratio=train_test_ratio,
+                        both_images=both_hands)
 
     def main(self, args):
         """ Setting arguments for gabor method """
         parser = argparse.ArgumentParser(description="Type all parameters")
-        parser.add_argument("both_hands", help="both_hands", type=bool, default=False)
-        parser.add_argument("--left_hand", help="left_hand", type=bool, default=False, required=False)
-        parser.add_argument("--right_hand", help="right_hand", type=bool, default=False, required=False)
+        parser.add_argument("both_hands", help="both_hands", type=self.str2bool, default=False)
+        parser.add_argument("--left_hand", help="left_hand", type=self.str2bool, default=False, required=False)
+        parser.add_argument("--right_hand", help="right_hand", type=self.str2bool, default=False, required=False)
+        parser.add_argument("--train_test_ratio", help="train_test_ratio", type=str, default="3/2", required=False)
 
         args = parser.parse_args(args)
-        self.gabor_filter(args.both_hands, args.left_hand, args.right_hand)
+        self.gabor_filter(args.both_hands, args.left_hand, args.right_hand, args.train_test_ratio)
 
 
 if __name__ == "__main__":
-    # Analyzer().main(sys.argv[1:])
-    Analyzer().gabor_filter(both_hands=True, right_hand=False, left_hand=False)
+    Analyzer().main(sys.argv[1:])
+    # Analyzer().gabor_filter(both_hands=True, right_hand=False, left_hand=False)
     print ("All images were processed!")
