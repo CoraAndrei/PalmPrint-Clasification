@@ -55,6 +55,8 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
                 counter = []
                 for index, image in enumerate(imgs):
                     img_to_be_saved = self.histogram_run(image)
+                    # self.display_result(image, img_to_be_saved)
+
                     base[index] = base[index].replace(".bmp", "")
                     counter.append(base[index].rsplit('\\', 1)[-1])
                     if hands_counter == 2:
@@ -68,7 +70,7 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
             counter = []
             for index, image in enumerate(self.imgs):
                 img_to_be_saved = self.histogram_run(image)
-                self.display_result(image, img_to_be_saved)
+                # self.display_result(image, img_to_be_saved)
                 self.base[index] = self.base[index].replace(".bmp", "")
                 counter.append(self.base[index].rsplit('\\', 1)[-1])
                 self.save_image(img_to_be_saved, self.SAVE_LOCATION.format(counter[index]))

@@ -59,8 +59,6 @@ class HistogramShow:
         regions = np.digitize(image, bins=val)
 
     def histogram_run(self, image):
-        image_rescale = self.contrast_stretching(image)
-        #img = self.log_adjust(image_rescale)
         image_adapeq = self.equalization(image)
         #self.display_result(image, image_rescale, image_eq, image_adapeq)
         return image_adapeq

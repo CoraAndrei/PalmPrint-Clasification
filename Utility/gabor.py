@@ -38,7 +38,7 @@ class GaborExtractFeatures(object):
         """
         processed_values = []
 
-        for theta in (1.4, 2.1, 3, 4):
+        for theta in (1.4, 2.1, 3, 4, 5):
             for ksize in (11, 15):
                 sigma = 1
                 gamma = 0.5
