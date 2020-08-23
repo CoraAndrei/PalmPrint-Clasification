@@ -55,6 +55,7 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
                 counter = []
                 for index, image in enumerate(imgs):
                     img_to_be_saved = self.histogram_run(image)
+                    # img_to_be_saved = image
                     # self.display_result(image, img_to_be_saved)
 
                     base[index] = base[index].replace(".bmp", "")

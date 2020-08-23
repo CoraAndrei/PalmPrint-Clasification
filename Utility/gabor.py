@@ -94,10 +94,10 @@ class GaborExtractFeatures(object):
                 fp.write('\n')
 
         if both_images:
-            if train_test_ratio == "3/2" or '3/2':
+            if train_test_ratio == "3/2" or train_test_ratio == '3/2':
                 self.train_index_both = [1, 2, 3, 4, 5, 6]
                 self.test_index_both = [7, 8, 9, 10]
-            elif train_test_ratio == "4/1" or '4/1':
+            elif train_test_ratio == "4/1" or train_test_ratio == '4/1':
                 self.train_index_both = [1, 2, 3, 4, 5, 6, 7, 8]
                 self.test_index_both = [9, 10]
 
@@ -116,10 +116,10 @@ class GaborExtractFeatures(object):
                     elif both_images is False:
                         fp.write('\n')
         else:
-            if train_test_ratio == "3/2" or '3/2':
+            if train_test_ratio == "3/2" or train_test_ratio == '3/2':
                 self.train_index_single = [1, 2, 3]
                 self.test_index_single = [4, 5]
-            elif train_test_ratio == "4/1" or '4/1':
+            elif train_test_ratio == "4/1" or train_test_ratio == '4/1':
                 self.train_index_single = [1, 2, 3, 4]
                 self.test_index_single = [5]
             if general_index in self.train_index_single:
