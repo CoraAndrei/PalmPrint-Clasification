@@ -63,6 +63,21 @@ class HistogramShow:
         #self.display_result(image, image_rescale, image_eq, image_adapeq)
         return image_adapeq
 
+
+    def display_result2(self, image):
+        import cv2
+
+        # read image
+        im = cv2.imread(image)
+        # calculate mean value from RGB channels and flatten to 1D array
+        vals = im.mean(axis=2).flatten()
+        # calculate histogram
+        counts, bins = np.histogram(vals, range(257))
+        # plot histogram centered on values 0..255
+        plt.bar(bins[:-1] - 0.5, counts, width=1, edgecolor='none')
+        plt.xlim([-0.5, 255.5])
+        plt.show()
+
     def display_result(self, image_before, image_after):
         fig = plt.figure(figsize=(8, 5))
         axes = np.zeros((2, 4), dtype=np.object)

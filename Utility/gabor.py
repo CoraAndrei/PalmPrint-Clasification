@@ -49,9 +49,13 @@ class GaborExtractFeatures(object):
         csv_results = ""
         for item in processed_values:
             for arr in item:
+                # creating a simple numpy array
                 np_array = np.array(arr)
+                # creating a tuple with (row_number, column_number) from np_array
                 num_x = np_array.shape[1]
+                # creating an array with one element in order to add features from the initial data
                 cov_x = np.zeros(1)
+                # sample mean which initially is 0.0
                 mean_x = cov_x.mean()
 
                 for k in range(0, num_x):
