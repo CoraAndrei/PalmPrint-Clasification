@@ -46,8 +46,8 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
             fp.truncate()
         with open('Gabor_test.csv', 'w') as fp:
             fp.truncate()
-        self.display_result2('001_1_seg.bmp')
-        self.display_result2('001_1_pro.bmp')
+        # self.display_result2('001_1_seg.bmp')
+        # self.display_result2('001_1_pro.bmp')
 
         if both_hands is True:
             imgs = right_imgs
