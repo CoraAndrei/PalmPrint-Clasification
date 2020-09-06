@@ -2,11 +2,14 @@ import os
 import glob
 import sys
 import argparse
+import time
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from Utility.histogram_processor import HistogramShow
 from Utility.image_loader import ImageLoader
 from Utility.gabor import GaborExtractFeatures
+from Utility.csv_to_arff import ArffConverter
 
 
 class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
@@ -86,12 +89,13 @@ class Analyzer(HistogramShow, ImageLoader, GaborExtractFeatures):
         parser.add_argument("--left_hand", help="left_hand", type=self.str2bool, default=False, required=False)
         parser.add_argument("--right_hand", help="right_hand", type=self.str2bool, default=False, required=False)
         parser.add_argument("--train_test_ratio", help="train_test_ratio", type=str, default="3/2", required=False)
-
         args = parser.parse_args(args)
         self.gabor_filter(args.both_hands, args.left_hand, args.right_hand, args.train_test_ratio)
 
 
 if __name__ == "__main__":
     Analyzer().main(sys.argv[1:])
+    ArffConverter('Gabor_test.csv')
+    ArffConverter('Gabor_train.csv')
     # Analyzer().gabor_filter(both_hands=True, right_hand=False, left_hand=False)
     print ("All images were processed!")
